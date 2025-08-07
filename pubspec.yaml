@@ -14,7 +14,7 @@ dependencies:
   record: ^6.0.0
   path_provider: ^2.1.5
   sprintf: ^7.0.0
-  syncfusion_flutter_pdfviewer: ^30.1.41
+  pdfx: ^2.9.2
 
 
 dev_dependencies:
@@ -28,7 +28,11 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/
+    - assets/stroop.pdf
+    - assets/tmta_example.pdf
+    - assets/tmta.pdf
+    - assets/tmtb_example.pdf
+    - assets/tmtb.pdf
 
   # For details regarding assets in packages, see
   # https://flutter.dev/to/asset-from-package

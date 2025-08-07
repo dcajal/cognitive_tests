@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:pdfx/pdfx.dart';
 
 /// Widget that handles PDF viewing for cognitive tests
 class StroopPdfViewer extends StatefulWidget {
   /// Path to the PDF asset
-  final String assetPath = 'assets/stroop.pdf';
+  final String assetPath = 'packages/cognitive_tests/assets/stroop.pdf';
 
   /// Current page number to display
   final int currentPage;
@@ -23,12 +23,14 @@ class StroopPdfViewer extends StatefulWidget {
 }
 
 class _StroopPdfViewerState extends State<StroopPdfViewer> {
-  late final PdfViewerController _pdfController;
+  late final PdfController _pdfController;
 
   @override
   void initState() {
     super.initState();
-    _pdfController = PdfViewerController();
+    _pdfController = PdfController(
+      document: PdfDocument.openAsset(widget.assetPath),
+    );
   }
 
   @override
@@ -49,17 +51,11 @@ class _StroopPdfViewerState extends State<StroopPdfViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return SfPdfViewer.asset(
-      widget.assetPath,
+    return PdfView(
       controller: _pdfController,
-      pageLayoutMode: PdfPageLayoutMode.single,
-      canShowScrollHead: false,
-      enableDoubleTapZooming: false,
-      enableTextSelection: false,
-      enableDocumentLinkAnnotation: false,
     );
   }
 
   /// Get the PDF controller for external access if needed
-  PdfViewerController get controller => _pdfController;
+  PdfController get controller => _pdfController;
 }

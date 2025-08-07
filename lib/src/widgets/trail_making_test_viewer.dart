@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:pdfx/pdfx.dart';
 import 'package:cognitive_tests/cognitive_tests.dart';
 
 /// Widget that combines PDF viewing and gesture detection for Trail Making Test
@@ -57,8 +57,8 @@ class _TrailMakingTestViewerState extends State<TrailMakingTestViewer> {
 /// PDF sheet widget for Trail Making Test
 class TmtSheet extends StatelessWidget {
   final List<String> testPath = [
-    'assets/stress_tests/tmta.pdf',
-    'assets/stress_tests/tmtb.pdf'
+    'packages/cognitive_tests/assets/tmta.pdf',
+    'packages/cognitive_tests/assets/tmtb.pdf'
   ];
   final bool firstTest;
 
@@ -69,13 +69,10 @@ class TmtSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SfPdfViewer.asset(
-      firstTest ? testPath[0] : testPath[1],
-      pageLayoutMode: PdfPageLayoutMode.single,
-      canShowScrollHead: false,
-      enableDoubleTapZooming: false,
-      enableTextSelection: false,
-      enableDocumentLinkAnnotation: false,
+    return PdfView(
+      controller: PdfController(
+        document: PdfDocument.openAsset(firstTest ? testPath[0] : testPath[1]),
+      ),
     );
   }
 }

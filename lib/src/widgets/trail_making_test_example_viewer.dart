@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:pdfx/pdfx.dart';
 
 enum TrailMakingTestType {
   testA,
@@ -21,20 +21,18 @@ class TrailMakingTestExampleViewer extends StatelessWidget {
   String get _assetPath {
     switch (testType) {
       case TrailMakingTestType.testA:
-        return 'assets/tmta_example.pdf';
+        return 'packages/cognitive_tests/assets/tmta_example.pdf';
       case TrailMakingTestType.testB:
-        return 'assets/tmtb_example.pdf';
+        return 'packages/cognitive_tests/assets/tmtb_example.pdf';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SfPdfViewer.asset(
-      _assetPath,
-      canShowScrollHead: false,
-      enableDoubleTapZooming: false,
-      enableTextSelection: false,
-      enableDocumentLinkAnnotation: false,
+    return PdfView(
+      controller: PdfController(
+        document: PdfDocument.openAsset(_assetPath),
+      ),
     );
   }
 }
