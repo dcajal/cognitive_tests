@@ -5,7 +5,7 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 /// This widget should be moved to the cognitive_tests package
 class StroopPdfViewer extends StatefulWidget {
   /// Path to the PDF asset
-  final String assetPath = 'assets/stress_tests/stroop.pdf';
+  final String assetPath = 'assets/stroop.pdf';
 
   /// Current page number to display
   final int currentPage;
