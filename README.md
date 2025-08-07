@@ -1,5 +1,9 @@
 # Cognitive Tests
 
+[![Platform](https://img.shields.io/badge/platform-flutter-blue)](https://flutter.dev)
+[![iOS](https://img.shields.io/badge/iOS-supported-green)](https://developer.apple.com/ios/)
+[![Android](https://img.shields.io/badge/Android-supported-green)](https://developer.android.com/)
+
 A Flutter library for implementing and managing cognitive tests commonly used in neuropsychological assessments. This package provides implementations of the Stroop Test and Trail Making Test with built-in data collection, audio recording capabilities, and customizable result handling.
 
 ## Features
@@ -97,159 +101,10 @@ class MyTestResultHandler implements TestResultHandler {
 }
 ```
 
-### Stroop Test Example
+### Examples
 
-```dart
-class StroopTestWidget extends StatefulWidget {
-  @override
-  _StroopTestWidgetState createState() => _StroopTestWidgetState();
-}
+For complete implementation examples, see the [examples directory](example/).
 
-class _StroopTestWidgetState extends State<StroopTestWidget> {
-  late StroopTest stroopTest;
-
-  @override
-  void initState() {
-    super.initState();
-    stroopTest = StroopTest(
-      resultHandler: MyTestResultHandler(),
-      enableAudioRecording: true, // Set to false to disable audio
-    );
-    _initializeTest();
-  }
-
-  Future<void> _initializeTest() async {
-    final hasPermission = await stroopTest.initialize();
-    if (hasPermission) {
-      await stroopTest.startTest();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Stroop Test - Page ${stroopTest.testPage}')),
-      body: Center(
-        child: Column(
-          children: [
-            // Your Stroop test UI here
-            ElevatedButton(
-              onPressed: () => stroopTest.goToNextPage(),
-              child: Text('Next Page'),
-            ),
-            ElevatedButton(
-              onPressed: () => stroopTest.finishTest(context),
-              child: Text('Finish Test'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    stroopTest.dispose();
-    super.dispose();
-  }
-}
-```
-
-### Trail Making Test Example
-
-```dart
-class TrailMakingTestWidget extends StatefulWidget {
-  @override
-  _TrailMakingTestWidgetState createState() => _TrailMakingTestWidgetState();
-}
-
-class _TrailMakingTestWidgetState extends State<TrailMakingTestWidget> {
-  late TrailMakingTest trailTest;
-  final GlobalKey sheetKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    trailTest = TrailMakingTest(resultHandler: MyTestResultHandler());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('TMT ${trailTest.isFirstTest ? "Part A" : "Part B"}'),
-      ),
-      body: GestureDetector(
-        onPanUpdate: (details) {
-          trailTest.recordGesture(
-            details.localPosition,
-            details.globalPosition,
-          );
-          setState(() {}); // Trigger repaint
-        },
-        child: CustomPaint(
-          key: sheetKey,
-          painter: TrailPainter(trailTest.paintingOffsets),
-          size: Size.infinite,
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await trailTest.finishTest(context, sheetKey);
-          if (trailTest.isFirstTest) {
-            trailTest.moveToNextTest();
-            trailTest.clearGestureData();
-            setState(() {});
-          }
-        },
-        child: Icon(Icons.check),
-      ),
-    );
-  }
-}
-
-class TrailPainter extends CustomPainter {
-  final List<Offset?> offsets;
-  
-  TrailPainter(this.offsets);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
-
-    for (int i = 0; i < offsets.length - 1; i++) {
-      if (offsets[i] != null && offsets[i + 1] != null) {
-        canvas.drawLine(offsets[i]!, offsets[i + 1]!, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-}
-```
-
-## API Reference
-
-### Classes
-
-- **`StroopTest`**: Main class for Stroop test implementation
-- **`TrailMakingTest`**: Main class for Trail Making test implementation
-- **`TestResultHandler`**: Interface for custom result handling
-- **`StroopTestResult`**: Data model for Stroop test results
-- **`TrailMakingTestResult`**: Data model for Trail Making test results
-
-### Key Methods
-
-- `StroopTest.initialize()`: Initialize test and request permissions
-- `StroopTest.startTest()`: Begin the test and start recording
-- `StroopTest.goToNextPage()`: Record page transition
-- `StroopTest.finishTest()`: Complete test and process results
-- `TrailMakingTest.recordGesture()`: Record gesture coordinates
-- `TrailMakingTest.finishTest()`: Complete test and process results
 
 ## Additional Information
 
@@ -264,7 +119,3 @@ If you encounter any issues or have feature requests, please file them on the [G
 ### License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### Acknowledgments
-
-This package implements standard neuropsychological tests commonly used in cognitive assessment research and clinical practice.
