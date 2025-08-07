@@ -45,23 +45,26 @@ class StroopTestPageState extends State<StroopTestPage> {
       appBar: AppBar(
         title: const Text('Stroop Test'),
       ),
-      body: Column(
-        children: [
-          // PDF viewer section
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: StroopPdfViewer(
-                currentPage: _test.testPage,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // PDF viewer section
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: StroopPdfViewer(
+                  currentPage: _test.testPage,
+                ),
               ),
             ),
-          ),
 
-          // Navigation button section
-          Center(
-            child: _buildNavigationButton(),
-          ),
-        ],
+            // Navigation button section
+            Center(
+              child: _buildNavigationButton(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -72,7 +75,7 @@ class StroopTestPageState extends State<StroopTestPage> {
       // Show finish button on last page
       return TextButton(
         child: const Text('Finish'),
-        onPressed: () async => await _finishTest(),
+        onPressed: () => Navigator.of(context).pop(),
       );
     } else {
       // Show next button for other pages
@@ -89,20 +92,5 @@ class StroopTestPageState extends State<StroopTestPage> {
       _test.goToNextPage();
       // The PDF viewer will automatically update via the currentPage parameter
     });
-  }
-
-  /// Finishes the test and handles navigation
-  Future<void> _finishTest() async {
-    try {
-      await _test.finishTest(context);
-
-      // Close the test screen after a short delay
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      debugPrint('Error finishing Stroop test: $e');
-    }
   }
 }

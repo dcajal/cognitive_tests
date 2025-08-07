@@ -29,48 +29,51 @@ class TrailMakingTestPageState extends State<TrailMakingTestPage> {
       appBar: AppBar(
         title: const Text('Trail Making Test'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: TrailMakingTestViewer(
-              testLogic: _test,
-              isFirstTest: _test.isFirstTest,
-              sheetKey: _sheetKey,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(
-                width: 0.3 * displayWidth,
-                child: TextButton(
-                    child: const Text("Erase traces"),
-                    onPressed: () {
-                      setState(() {
-                        _test.clearGestureData();
-                      });
-                    }),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: TrailMakingTestViewer(
+                testLogic: _test,
+                isFirstTest: _test.isFirstTest,
+                sheetKey: _sheetKey,
               ),
-              SizedBox(
-                width: 0.3 * displayWidth,
-                child: TextButton(
-                  onPressed: _test.isFirstTest
-                      ? () async {
-                          await _finishCurrentTest();
-                          setState(() {
-                            _test.moveToNextTest();
-                          });
-                        }
-                      : () async {
-                          await _finishCurrentTest();
-                          await _finishCompleteTest();
-                        },
-                  child: Text(_test.isFirstTest ? "Next" : "Finish"),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 0.3 * displayWidth,
+                  child: TextButton(
+                      child: const Text("Erase traces"),
+                      onPressed: () {
+                        setState(() {
+                          _test.clearGestureData();
+                        });
+                      }),
                 ),
-              )
-            ],
-          ),
-        ],
+                SizedBox(
+                  width: 0.3 * displayWidth,
+                  child: TextButton(
+                    onPressed: _test.isFirstTest
+                        ? () async {
+                            await _finishCurrentTest();
+                            setState(() {
+                              _test.moveToNextTest();
+                            });
+                          }
+                        : () async {
+                            await _finishCurrentTest();
+                            await _finishCompleteTest();
+                          },
+                    child: Text(_test.isFirstTest ? "Next" : "Finish"),
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -88,11 +91,8 @@ class TrailMakingTestPageState extends State<TrailMakingTestPage> {
   /// Handle completion of entire test and navigation
   Future<void> _finishCompleteTest() async {
     try {
-      // Close test after delay
-      await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
-        Navigator.pop(context); // Instructions
-        Navigator.pop(context); // Main menu
+        Navigator.pop(context);
       }
     } catch (e) {
       debugPrint('Error completing test: $e');

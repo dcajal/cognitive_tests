@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'stroop_test_page.dart';
 import 'trail_making_test_page.dart';
+import 'trail_making_test_instructions.dart';
 
 void main() {
   runApp(const CognitiveTestsApp());
@@ -123,6 +124,36 @@ class HomePage extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const TrailMakingTestPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.purple.shade100,
+                          child: Icon(
+                            Icons.help_outline,
+                            color: Colors.purple.shade700,
+                          ),
+                        ),
+                        title: const Text(
+                          'Trail Making Test Instructions',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: const Text(
+                          'Learn how to perform the trail making test',
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const TrailMakingTestInstructions(),
                             ),
                           );
                         },
