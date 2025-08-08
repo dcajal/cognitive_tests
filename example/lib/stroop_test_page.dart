@@ -53,7 +53,7 @@ class StroopTestPageState extends State<StroopTestPage> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: StroopPdfViewer(
+                child: StroopViewer(
                   currentPage: _test.testPage,
                 ),
               ),
