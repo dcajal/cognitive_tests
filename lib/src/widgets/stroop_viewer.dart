@@ -6,11 +6,15 @@ import '../tests/stroop_test.dart';
 class StroopViewer extends StatefulWidget {
   final StroopTest test;
   final int currentPage;
+  final TextStyle? textStyle;
+  final double itemHeight;
 
   const StroopViewer({
     super.key,
     required this.test,
     required this.currentPage,
+    this.textStyle,
+    this.itemHeight = 60,
   });
 
   static int get totalPages => StroopTest.totalPages;
@@ -73,12 +77,25 @@ class _StroopViewerState extends State<StroopViewer> {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Center(
-              child: Text(
-                s.text,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              child: Container(
+                width: widget.itemHeight * 5,
+                height: widget.itemHeight,
+                alignment: Alignment.center,
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Text(
+                    s.text,
+                    style: (widget.textStyle ??
+                            const TextStyle(
+                                fontFamily: 'OpenSans',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 36))
+                        .copyWith(
                       color: s.color,
-                      fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ),
           );
@@ -100,8 +117,8 @@ class _StroopViewerState extends State<StroopViewer> {
             padding: const EdgeInsets.symmetric(vertical: 6.0),
             child: Center(
               child: Container(
-                width: 120,
-                height: 32,
+                width: widget.itemHeight * 5,
+                height: widget.itemHeight,
                 decoration: BoxDecoration(
                   color: s.color,
                   borderRadius: BorderRadius.circular(6),
