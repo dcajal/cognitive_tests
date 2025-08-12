@@ -1,6 +1,6 @@
 name: cognitive_tests
 description: A Flutter library for cognitive tests
-version: 0.1.2
+version: 0.1.3
 homepage: https://github.com/tuusuario/cognitive_tests
 repository: https://github.com/tuusuario/cognitive_tests
 
@@ -28,9 +28,6 @@ flutter:
   assets:
     - assets/tmta.png
     - assets/tmtb.png
-    - assets/stroop-0.png
-    - assets/stroop-1.png
-    - assets/stroop-2.png
     - assets/tmta_example.png
     - assets/tmtb_example.png
 
