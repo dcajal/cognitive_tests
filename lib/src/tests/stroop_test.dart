@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -8,6 +9,9 @@ import 'package:sprintf/sprintf.dart';
 
 import '../interfaces/test_result_handler.dart';
 import '../models/test_results.dart';
+
+/// Supported languages for the Stroop Test stimuli
+enum StroopLanguage { english, spanish }
 
 /// StroopTest - Stroop cognitive test
 ///
@@ -26,8 +30,33 @@ class StroopTest {
   /// Whether to enable audio recording
   final bool enableAudioRecording;
 
+  /// Number of items per page (words or color patches). Default 100.
+  final int itemCount;
+
+  /// Language for displayed words.
+  final StroopLanguage language;
+
+  /// Random generator (can be injected for reproducibility in tests).
+  final Random _rng;
+
   /// Constructor
-  StroopTest({this.resultHandler, this.enableAudioRecording = true});
+  StroopTest({
+    this.resultHandler,
+    this.enableAudioRecording = true,
+    this.itemCount = 100,
+    this.language = StroopLanguage.english,
+    Random? random,
+  }) : _rng = random ?? Random();
+
+  /// Stroop Data
+  late final List<StroopWordItem> _page0Words; // Congruent words in black ink
+  late final List<StroopColorItem> _page1Colors; // Color patches only
+  late final List<StroopWordItem> _page2Words; // Incongruent word-color pairs
+
+  /// Public getters
+  List<StroopWordItem> get page0Words => _page0Words;
+  List<StroopColorItem> get page1Colors => _page1Colors;
+  List<StroopWordItem> get page2Words => _page2Words;
 
   /// Audio recorder for capturing user responses
   final AudioRecorder _recorder = AudioRecorder();
@@ -52,6 +81,7 @@ class StroopTest {
 
   /// Initialize the audio recorder and request permissions
   Future<bool> initialize() async {
+    _generateItems();
     if (!enableAudioRecording) {
       debugPrint('Audio recording disabled');
       return true;
@@ -148,4 +178,59 @@ class StroopTest {
       }
     }
   }
+
+  /// Item generation
+  void _generateItems() {
+    // Available colors & words
+    const List<Color> colors = [Colors.red, Colors.green, Colors.blue];
+    final List<String> words = switch (language) {
+      StroopLanguage.english => ['RED', 'GREEN', 'BLUE'],
+      StroopLanguage.spanish => ['ROJO', 'VERDE', 'AZUL'],
+    };
+
+    // Helper indices list for uniform distribution
+    List<int> uniformIndices(int n) {
+      final list = <int>[];
+      while (list.length < itemCount) {
+        for (int i = 0; i < n && list.length < itemCount; i++) {
+          list.add(i);
+        }
+      }
+      list.shuffle(_rng);
+      return list;
+    }
+
+    final wordIndices = uniformIndices(words.length);
+    final colorIndices = uniformIndices(colors.length);
+
+    // Page 0: words in black ink
+    _page0Words = List.generate(
+        itemCount, (i) => StroopWordItem(words[wordIndices[i]], Colors.black));
+
+    // Page 1: color patches only
+    _page1Colors = List.generate(
+        itemCount, (i) => StroopColorItem(colors[colorIndices[i]]));
+
+    // Page 2: incongruent word-color pairs
+    _page2Words = List.generate(itemCount, (i) {
+      final wordIdx = wordIndices[i];
+      int colorIdx;
+      // Pick a color different from the word's semantic color
+      do {
+        colorIdx = _rng.nextInt(colors.length);
+      } while (colorIdx == wordIdx); // ensure incongruence
+      return StroopWordItem(words[wordIdx], colors[colorIdx]);
+    });
+  }
+}
+
+class StroopWordItem {
+  final String text;
+  final Color color;
+  StroopWordItem(this.text, this.color);
+}
+
+class StroopColorItem {
+  final Color color;
+  StroopColorItem(this.color);
 }

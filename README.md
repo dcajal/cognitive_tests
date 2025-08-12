@@ -13,6 +13,9 @@ A Flutter library for implementing and managing cognitive tests commonly used in
   - Timestamp tracking for performance analysis
   - Page transition monitoring
   - Configurable audio recording settings
+  - Dynamic generation
+  - Configurable number of items per page
+  - Language support (English / Spanish) for color words
 
 - **Trail Making Test**: Digital implementation supporting both Part A and Part B with:
   - Gesture tracking and coordinate recording
@@ -104,6 +107,35 @@ class MyTestResultHandler implements TestResultHandler {
 ### Examples
 
 For complete implementation examples, see the [examples directory](example/).
+
+### Stroop Test Configuration
+
+The Stroop test now generates its three standard pages dynamically:
+
+1. Color words (RED/GREEN/BLUE or ROJO/VERDE/AZUL) in black ink
+2. Solid color patches (red, green, blue)
+3. Incongruent word–ink color pairs (e.g., the word RED in green ink)
+
+You can configure the number of stimuli and the language when constructing `StroopTest`:
+
+```dart
+final stroop = StroopTest(
+  itemCount: 120, // total items per page (default 100)
+  language: StroopLanguage.english, // or StroopLanguage.spanish
+  enableAudioRecording: true,
+);
+await stroop.initialize();
+```
+
+Access the generated stimuli if you need custom rendering:
+
+```dart
+stroop.page0Words; // List<StroopWordStimulus> (text in black)
+stroop.page1Colors; // List<StroopColorStimulus>
+stroop.page2Words; // List<StroopWordStimulus> (incongruent colors)
+```
+
+The provided `StroopViewer` automatically renders the correct list for the current page inside a vertical scroll view for comfortable reading.
 
 
 ## Additional Information

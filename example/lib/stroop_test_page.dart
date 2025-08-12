@@ -22,6 +22,8 @@ class StroopTestPageState extends State<StroopTestPage> {
 
     _test = StroopTest(
       enableAudioRecording: true,
+      itemCount: 100,
+      language: StroopLanguage.english,
     );
 
     _test.initialize();
@@ -54,6 +56,7 @@ class StroopTestPageState extends State<StroopTestPage> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: StroopViewer(
+                  test: _test,
                   currentPage: _test.testPage,
                 ),
               ),
