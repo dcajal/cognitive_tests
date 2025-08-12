@@ -1,8 +1,8 @@
 name: cognitive_tests
 description: A Flutter library for cognitive tests
 version: 0.1.3
-homepage: https://github.com/tuusuario/cognitive_tests
-repository: https://github.com/tuusuario/cognitive_tests
+homepage: https://github.com/dcajal/cognitive_tests
+repository: https://github.com/dcajal/cognitive_tests
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

@@ -15,7 +15,7 @@ A Flutter library for implementing and managing cognitive tests commonly used in
   - Configurable audio recording settings
   - Dynamic generation
   - Configurable number of items per page
-  - Multi-language support (10 languages) for color words: English, Chinese (Mandarin), Hindi, Spanish, French, Arabic, Bengali, Russian, Portuguese, and Urdu
+  - Multi-language support for color words
 
 - **Trail Making Test**: Digital implementation supporting both Part A and Part B with:
   - Gesture tracking and coordinate recording
