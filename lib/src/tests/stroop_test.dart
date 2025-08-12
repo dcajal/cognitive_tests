@@ -10,7 +10,7 @@ import 'package:sprintf/sprintf.dart';
 import '../interfaces/test_result_handler.dart';
 import '../models/test_results.dart';
 
-/// Supported languages for the Stroop Test stimuli
+/// Supported languages for the Stroop Test
 enum StroopLanguage { english, spanish }
 
 /// StroopTest - Stroop cognitive test
@@ -79,6 +79,39 @@ class StroopTest {
   /// Whether current page is the last one
   bool get isLastPage => _testPage >= totalPages - 1;
 
+  /// Helper method to add timestamp if audio recording is enabled
+  void _addTimestamp() {
+    if (enableAudioRecording) {
+      timestamps.add(DateTime.now().toUtc().millisecondsSinceEpoch);
+    }
+  }
+
+  /// Helper method to setup audio recording file
+  Future<void> _setupAudioFile(DateTime dt) async {
+    audioFileName = sprintf(
+      '%02i%02i%02i_%02i%02i%02i_stresstest_stroopaudio.wav',
+      [dt.year % 100, dt.month, dt.day, dt.hour, dt.minute, dt.second],
+    );
+
+    final directory = await getApplicationDocumentsDirectory();
+    final pathWav = "${directory.path}/$audioFileName";
+    audioFile = await File(pathWav).create();
+
+    debugPrint('Saving audio file to: $pathWav');
+  }
+
+  /// Helper method to start audio recording
+  Future<void> _startAudioRecording(String pathWav) async {
+    await _recorder.start(
+      const RecordConfig(
+        encoder: AudioEncoder.wav,
+        sampleRate: 16000,
+        numChannels: 1,
+      ),
+      path: pathWav,
+    );
+  }
+
   /// Initialize the audio recorder and request permissions
   Future<bool> initialize() async {
     _generateItems();
@@ -106,9 +139,7 @@ class StroopTest {
   void goToNextPage() {
     if (!isLastPage) {
       _testPage++;
-      if (enableAudioRecording) {
-        timestamps.add(DateTime.now().toUtc().millisecondsSinceEpoch);
-      }
+      _addTimestamp();
     }
   }
 
@@ -117,51 +148,25 @@ class StroopTest {
   Future<void> startTest() async {
     final DateTime dt = DateTime.now();
 
-    // Generate unique filename for audio recording if enabled
     if (enableAudioRecording) {
-      audioFileName = sprintf(
-        '%02i%02i%02i_%02i%02i%02i_stresstest_stroopaudio.wav',
-        [dt.year % 100, dt.month, dt.day, dt.hour, dt.minute, dt.second],
-      );
-
-      // Create audio file in the application documents directory
-      final directory = await getApplicationDocumentsDirectory();
-      final pathWav = "${directory.path}/$audioFileName";
-      audioFile = await File(pathWav).create();
-
-      debugPrint('Saving audio file to: $pathWav');
-
-      // Start audio recording
-      await _recorder.start(
-        const RecordConfig(
-          encoder: AudioEncoder.wav,
-          sampleRate: 16000,
-          numChannels: 1,
-        ),
-        path: pathWav,
-      );
+      await _setupAudioFile(dt);
+      await _startAudioRecording(
+          "${(await getApplicationDocumentsDirectory()).path}/$audioFileName");
     } else {
       debugPrint('Audio recording disabled - timestamps will not be saved');
     }
 
-    // Record the test start timestamp only if audio recording is enabled
-    if (enableAudioRecording) {
-      timestamps.add(DateTime.now().toUtc().millisecondsSinceEpoch);
-    }
+    _addTimestamp();
   }
 
   /// Finishes the Stroop test
   /// Stops recording, saves data, and handles file upload
   Future<void> finishTest(BuildContext context) async {
-    // Stop audio recording if it was enabled
     if (enableAudioRecording) {
       await _recorder.stop();
     }
 
-    // Record the test end timestamp only if audio recording is enabled
-    if (enableAudioRecording) {
-      timestamps.add(DateTime.now().toUtc().millisecondsSinceEpoch);
-    }
+    _addTimestamp();
 
     // Create result object and call handler if provided
     if (resultHandler != null) {
@@ -179,47 +184,77 @@ class StroopTest {
     }
   }
 
+  /// Generates a sequence with no identical consecutive items
+  List<int> _generateSequenceNoAdjacent(int categories, int length) {
+    if (categories <= 0 || length <= 0) return const <int>[];
+    if (categories == 1) return List.filled(length, 0);
+
+    final sequence = <int>[];
+    int lastChoice = -1;
+
+    for (int i = 0; i < length; i++) {
+      List<int> availableChoices = List.generate(categories, (index) => index);
+      if (lastChoice != -1) {
+        availableChoices.remove(lastChoice);
+      }
+
+      final choice = availableChoices[_rng.nextInt(availableChoices.length)];
+      sequence.add(choice);
+      lastChoice = choice;
+    }
+
+    return sequence;
+  }
+
   /// Item generation
   void _generateItems() {
-    // Available colors & words
-    const List<Color> colors = [Colors.red, Colors.green, Colors.blue];
-    final List<String> words = switch (language) {
+    const colors = [Colors.red, Colors.green, Colors.blue];
+    final words = _getWordsForLanguage();
+
+    final wordIndices = _generateSequenceNoAdjacent(words.length, itemCount);
+    final colorIndices = _generateSequenceNoAdjacent(colors.length, itemCount);
+
+    _page0Words = _generatePage0Words(words, wordIndices);
+    _page1Colors = _generatePage1Colors(colors, colorIndices);
+    _page2Words = _generatePage2Words(words, colors, wordIndices, colorIndices);
+  }
+
+  /// Get words based on selected language
+  List<String> _getWordsForLanguage() {
+    return switch (language) {
       StroopLanguage.english => ['RED', 'GREEN', 'BLUE'],
       StroopLanguage.spanish => ['ROJO', 'VERDE', 'AZUL'],
     };
+  }
 
-    // Helper indices list for uniform distribution
-    List<int> uniformIndices(int n) {
-      final list = <int>[];
-      while (list.length < itemCount) {
-        for (int i = 0; i < n && list.length < itemCount; i++) {
-          list.add(i);
-        }
-      }
-      list.shuffle(_rng);
-      return list;
-    }
-
-    final wordIndices = uniformIndices(words.length);
-    final colorIndices = uniformIndices(colors.length);
-
-    // Page 0: words in black ink
-    _page0Words = List.generate(
+  /// Generate page 0: words in black ink
+  List<StroopWordItem> _generatePage0Words(
+      List<String> words, List<int> wordIndices) {
+    return List.generate(
         itemCount, (i) => StroopWordItem(words[wordIndices[i]], Colors.black));
+  }
 
-    // Page 1: color patches only
-    _page1Colors = List.generate(
+  /// Generate page 1: color patches only
+  List<StroopColorItem> _generatePage1Colors(
+      List<Color> colors, List<int> colorIndices) {
+    return List.generate(
         itemCount, (i) => StroopColorItem(colors[colorIndices[i]]));
+  }
 
-    // Page 2: incongruent word-color pairs
-    _page2Words = List.generate(itemCount, (i) {
+  /// Generate page 2: incongruent word-color pairs
+  List<StroopWordItem> _generatePage2Words(List<String> words,
+      List<Color> colors, List<int> wordIndices, List<int> colorIndices) {
+    return List.generate(itemCount, (i) {
       final wordIdx = wordIndices[i];
-      int colorIdx;
-      // Pick a color different from the word's semantic color
-      do {
-        colorIdx = _rng.nextInt(colors.length);
-      } while (colorIdx == wordIdx); // ensure incongruence
-      return StroopWordItem(words[wordIdx], colors[colorIdx]);
+      final word = words[wordIdx];
+
+      // Find a color that's different from the word's semantic color
+      int colorIdx = colorIndices[i];
+      if (colorIdx == wordIdx) {
+        colorIdx = (colorIdx + 1) % colors.length;
+      }
+
+      return StroopWordItem(word, colors[colorIdx]);
     });
   }
 }
