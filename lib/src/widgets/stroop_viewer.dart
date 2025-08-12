@@ -24,7 +24,7 @@ class StroopViewer extends StatefulWidget {
 }
 
 class _StroopViewerState extends State<StroopViewer> {
-  late final ScrollController _controller;
+  late ScrollController _controller;
 
   @override
   void initState() {
@@ -36,7 +36,10 @@ class _StroopViewerState extends State<StroopViewer> {
   void didUpdateWidget(covariant StroopViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentPage != widget.currentPage) {
-      // Jump to top instantly on page change
+      // Force scroll to top on page change
+      if (_controller.hasClients) {
+        _controller.jumpTo(0);
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _controller.hasClients) {
           _controller.jumpTo(0);
