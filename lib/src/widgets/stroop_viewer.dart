@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../tests/stroop_test.dart';
 
-/// Displays the Stroop test stimuli for the current page.
+/// Displays the Stroop test items for the current page.
 /// Scroll position resets to top whenever the page changes.
 class StroopViewer extends StatefulWidget {
   final StroopTest test;
@@ -59,15 +59,15 @@ class _StroopViewerState extends State<StroopViewer> {
     }
   }
 
-  Widget _buildWordList(List<dynamic> stimuli, BuildContext context) {
+  Widget _buildWordList(List<dynamic> items, BuildContext context) {
     return Scrollbar(
       thumbVisibility: true,
       controller: _controller,
       child: ListView.builder(
         controller: _controller,
-        itemCount: stimuli.length,
+        itemCount: items.length,
         itemBuilder: (context, index) {
-          final s = stimuli[index];
+          final s = items[index];
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Center(
@@ -85,15 +85,15 @@ class _StroopViewerState extends State<StroopViewer> {
     );
   }
 
-  Widget _buildColorPatchList(List<dynamic> stimuli, BuildContext context) {
+  Widget _buildColorPatchList(List<dynamic> items, BuildContext context) {
     return Scrollbar(
       thumbVisibility: true,
       controller: _controller,
       child: ListView.builder(
         controller: _controller,
-        itemCount: stimuli.length,
+        itemCount: items.length,
         itemBuilder: (context, index) {
-          final s = stimuli[index];
+          final s = items[index];
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 6.0),
             child: Center(

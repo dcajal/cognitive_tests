@@ -34,15 +34,6 @@ A Flutter library for implementing and managing cognitive tests commonly used in
 - Flutter SDK 3.0.0 or higher
 - Dart SDK 3.0.0 or higher
 
-### Installation
-
-Add this package to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  cognitive_tests: ^0.1.0
-```
-
 ### Permissions
 
 For audio recording functionality (Stroop Test), you'll need to add the appropriate permissions:
@@ -61,13 +52,17 @@ For audio recording functionality (Stroop Test), you'll need to add the appropri
 
 ## Usage
 
-### Basic Implementation
+### Import
 
 First, import the package:
 
 ```dart
 import 'package:cognitive_tests/cognitive_tests.dart';
 ```
+
+### Examples
+
+For complete implementation examples, see the [examples directory](example/).
 
 ### Implementing a Custom Result Handler
 
@@ -103,40 +98,6 @@ class MyTestResultHandler implements TestResultHandler {
   }
 }
 ```
-
-### Examples
-
-For complete implementation examples, see the [examples directory](example/).
-
-### Stroop Test Configuration
-
-The Stroop test now generates its three standard pages dynamically:
-
-1. Color words (RED/GREEN/BLUE or ROJO/VERDE/AZUL) in black ink
-2. Solid color patches (red, green, blue)
-3. Incongruent word–ink color pairs (e.g., the word RED in green ink)
-
-You can configure the number of stimuli and the language when constructing `StroopTest`:
-
-```dart
-final stroop = StroopTest(
-  itemCount: 120, // total items per page (default 100)
-  language: StroopLanguage.english, // or StroopLanguage.spanish
-  enableAudioRecording: true,
-);
-await stroop.initialize();
-```
-
-Access the generated stimuli if you need custom rendering:
-
-```dart
-stroop.page0Words; // List<StroopWordStimulus> (text in black)
-stroop.page1Colors; // List<StroopColorStimulus>
-stroop.page2Words; // List<StroopWordStimulus> (incongruent colors)
-```
-
-The provided `StroopViewer` automatically renders the correct list for the current page inside a vertical scroll view for comfortable reading.
-
 
 ## Additional Information
 
