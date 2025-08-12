@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pdfx/pdfx.dart';
 
-/// Widget that handles PDF viewing for cognitive tests
-class StroopViewer extends StatefulWidget {
-  /// Path to the PDF asset
-  final String assetPath = 'packages/cognitive_tests/assets/stroop.pdf';
-
-  /// Current page number to display
+class StroopViewer extends StatelessWidget {
   final int currentPage;
-
-  /// Callback when page changes are needed
   final VoidCallback? onPageChangeRequested;
 
   const StroopViewer({
@@ -18,44 +10,21 @@ class StroopViewer extends StatefulWidget {
     this.onPageChangeRequested,
   });
 
-  @override
-  State<StroopViewer> createState() => _StroopViewerState();
-}
+  static const List<String> _pageAssets = [
+    'assets/stroop-0.png',
+    'assets/stroop-1.png',
+    'assets/stroop-2.png',
+  ];
 
-class _StroopViewerState extends State<StroopViewer> {
-  late final PdfController _pdfController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pdfController = PdfController(
-      document: PdfDocument.openAsset(widget.assetPath),
-    );
-  }
-
-  @override
-  void didUpdateWidget(StroopViewer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // Update PDF page when currentPage changes
-    if (oldWidget.currentPage != widget.currentPage) {
-      _pdfController.jumpToPage(widget.currentPage);
-    }
-  }
-
-  @override
-  void dispose() {
-    _pdfController.dispose();
-    super.dispose();
-  }
+  static int get totalPages => _pageAssets.length;
 
   @override
   Widget build(BuildContext context) {
-    return PdfView(
-      controller: _pdfController,
+    final safeIndex = currentPage.clamp(0, _pageAssets.length - 1);
+    return Image.asset(
+      _pageAssets[safeIndex],
+      fit: BoxFit.contain,
+      package: 'cognitive_tests',
     );
   }
-
-  /// Get the PDF controller for external access if needed
-  PdfController get controller => _pdfController;
 }

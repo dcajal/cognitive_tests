@@ -71,7 +71,7 @@ class StroopTestPageState extends State<StroopTestPage> {
 
   /// Builds the appropriate navigation button based on current page
   Widget _buildNavigationButton() {
-    if (_test.testPage == 3) {
+    if (_test.isLastPage) {
       // Show finish button on last page
       return TextButton(
         child: const Text('Finish'),

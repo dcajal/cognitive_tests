@@ -17,6 +17,9 @@ import '../models/test_results.dart';
 /// - File creation and management
 /// - Test data persistence
 class StroopTest {
+  /// Total number of pages in the Stroop test (keep in sync with StroopViewer)
+  static const int totalPages = 3;
+
   /// Handler for test results - can be any implementation of TestResultHandler
   final TestResultHandler? resultHandler;
 
@@ -38,11 +41,14 @@ class StroopTest {
   /// Filename for the generated audio file
   String? audioFileName;
 
-  /// Current page number in the test (starts at page 1)
-  int _testPage = 1;
+  /// Current page index (0-based). Starts at 0.
+  int _testPage = 0;
 
   /// Get current test page
   int get testPage => _testPage;
+
+  /// Whether current page is the last one
+  bool get isLastPage => _testPage >= totalPages - 1;
 
   /// Initialize the audio recorder and request permissions
   Future<bool> initialize() async {
@@ -68,9 +74,11 @@ class StroopTest {
 
   /// Move to the next page and record timestamp
   void goToNextPage() {
-    _testPage++;
-    if (enableAudioRecording) {
-      timestamps.add(DateTime.now().toUtc().millisecondsSinceEpoch);
+    if (!isLastPage) {
+      _testPage++;
+      if (enableAudioRecording) {
+        timestamps.add(DateTime.now().toUtc().millisecondsSinceEpoch);
+      }
     }
   }
 

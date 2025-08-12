@@ -1,6 +1,6 @@
 name: cognitive_tests
 description: A Flutter library for cognitive tests
-version: 0.1.1
+version: 0.1.2
 homepage: https://github.com/tuusuario/cognitive_tests
 repository: https://github.com/tuusuario/cognitive_tests
 
@@ -14,8 +14,6 @@ dependencies:
   record: ^6.0.0
   path_provider: ^2.1.5
   sprintf: ^7.0.0
-  pdfx: ^2.9.2
-
 
 dev_dependencies:
   flutter_test:
@@ -28,11 +26,13 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/stroop.pdf
-    - assets/tmta_example.pdf
-    - assets/tmta.pdf
-    - assets/tmtb_example.pdf
-    - assets/tmtb.pdf
+    - assets/tmta.png
+    - assets/tmtb.png
+    - assets/stroop-0.png
+    - assets/stroop-1.png
+    - assets/stroop-2.png
+    - assets/tmta_example.png
+    - assets/tmtb_example.png
 
   # For details regarding assets in packages, see
   # https://flutter.dev/to/asset-from-package

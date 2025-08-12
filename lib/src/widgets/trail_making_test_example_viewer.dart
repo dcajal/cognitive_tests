@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pdfx/pdfx.dart';
 
 enum TrailMakingTestType {
   testA,
@@ -21,18 +20,20 @@ class TrailMakingTestExampleViewer extends StatelessWidget {
   String get _assetPath {
     switch (testType) {
       case TrailMakingTestType.testA:
-        return 'packages/cognitive_tests/assets/tmta_example.pdf';
+        return 'assets/tmta_example.png';
       case TrailMakingTestType.testB:
-        return 'packages/cognitive_tests/assets/tmtb_example.pdf';
+        return 'assets/tmtb_example.png';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return PdfView(
-      controller: PdfController(
-        document: PdfDocument.openAsset(_assetPath),
-      ),
+    return Image.asset(
+      _assetPath,
+      fit: BoxFit.contain,
+      package: 'cognitive_tests',
+      height: height,
+      width: width,
     );
   }
 }
