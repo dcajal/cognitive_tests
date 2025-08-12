@@ -9,9 +9,7 @@ import 'package:sprintf/sprintf.dart';
 
 import '../interfaces/test_result_handler.dart';
 import '../models/test_results.dart';
-
-/// Supported languages for the Stroop Test
-enum StroopLanguage { english, spanish }
+import '../models/stroop_languages.dart';
 
 /// StroopTest - Stroop cognitive test
 ///
@@ -221,10 +219,7 @@ class StroopTest {
 
   /// Get words based on selected language
   List<String> _getWordsForLanguage() {
-    return switch (language) {
-      StroopLanguage.english => ['RED', 'GREEN', 'BLUE'],
-      StroopLanguage.spanish => ['ROJO', 'VERDE', 'AZUL'],
-    };
+    return StroopLanguageWords.getWordsForLanguage(language);
   }
 
   /// Generate page 0: words in black ink
