@@ -5,14 +5,12 @@ import '../tests/stroop_test.dart';
 /// Scroll position resets to top whenever the page changes.
 class StroopViewer extends StatefulWidget {
   final StroopTest test;
-  final int currentPage;
   final TextStyle? textStyle;
   final double itemHeight;
 
   const StroopViewer({
     super.key,
     required this.test,
-    required this.currentPage,
     this.textStyle,
     this.itemHeight = 60,
   });
@@ -25,17 +23,25 @@ class StroopViewer extends StatefulWidget {
 
 class _StroopViewerState extends State<StroopViewer> {
   late ScrollController _controller;
+  late int _currentPage;
 
   @override
   void initState() {
     super.initState();
     _controller = ScrollController();
+    _currentPage = widget.test.testPage;
+
+    // Listen for page changes
+    widget.test.pageNotifier.addListener(_onPageChanged);
   }
 
-  @override
-  void didUpdateWidget(covariant StroopViewer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentPage != widget.currentPage) {
+  void _onPageChanged() {
+    final newPage = widget.test.pageNotifier.value;
+    if (_currentPage != newPage) {
+      setState(() {
+        _currentPage = newPage;
+      });
+
       // Force scroll to top on page change
       if (_controller.hasClients) {
         _controller.jumpTo(0);
@@ -49,14 +55,27 @@ class _StroopViewerState extends State<StroopViewer> {
   }
 
   @override
+  void didUpdateWidget(covariant StroopViewer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Update listener if test instance changed
+    if (oldWidget.test != widget.test) {
+      oldWidget.test.pageNotifier.removeListener(_onPageChanged);
+      widget.test.pageNotifier.addListener(_onPageChanged);
+      _currentPage = widget.test.testPage;
+    }
+  }
+
+  @override
   void dispose() {
+    widget.test.pageNotifier.removeListener(_onPageChanged);
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    switch (widget.currentPage) {
+    switch (_currentPage) {
       case 0:
         return _buildWordList(widget.test.page0Words, context);
       case 1:

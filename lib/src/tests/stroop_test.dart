@@ -71,8 +71,14 @@ class StroopTest {
   /// Current page index (0-based). Starts at 0.
   int _testPage = 0;
 
+  /// Notifier for page changes - allows widgets to listen for updates
+  final ValueNotifier<int> _pageNotifier = ValueNotifier<int>(0);
+
   /// Get current test page
   int get testPage => _testPage;
+
+  /// Get page notifier for listening to page changes
+  ValueNotifier<int> get pageNotifier => _pageNotifier;
 
   /// Whether current page is the last one
   bool get isLastPage => _testPage >= totalPages - 1;
@@ -131,12 +137,14 @@ class StroopTest {
   /// Clean up resources
   Future<void> dispose() async {
     await _recorder.dispose();
+    _pageNotifier.dispose();
   }
 
   /// Move to the next page and record timestamp
   void goToNextPage() {
     if (!isLastPage) {
       _testPage++;
+      _pageNotifier.value = _testPage;
       _addTimestamp();
     }
   }

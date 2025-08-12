@@ -21,18 +21,12 @@ class StroopTestPageState extends State<StroopTestPage> {
     super.initState();
 
     _test = StroopTest(
-      enableAudioRecording: true,
+      enableAudioRecording: false,
       itemCount: 100,
       language: StroopLanguage.english,
     );
 
     _test.initialize();
-  }
-
-  @override
-  void deactivate() {
-    _test.dispose();
-    super.deactivate();
   }
 
   @override
@@ -51,13 +45,11 @@ class StroopTestPageState extends State<StroopTestPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // PDF viewer section
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: StroopViewer(
                   test: _test,
-                  currentPage: _test.testPage,
                 ),
               ),
             ),
@@ -93,7 +85,6 @@ class StroopTestPageState extends State<StroopTestPage> {
   void _goToNextPage() {
     setState(() {
       _test.goToNextPage();
-      // The PDF viewer will automatically update via the currentPage parameter
     });
   }
 }
