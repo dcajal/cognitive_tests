@@ -1,5 +1,5 @@
 name: cognitive_tests
-description: A Flutter library for cognitive tests
+description: A Flutter library for cognitive tests. Supported for iOS and Android.
 version: 1.0.1
 homepage: https://github.com/dcajal/cognitive_tests
 repository: https://github.com/dcajal/cognitive_tests
