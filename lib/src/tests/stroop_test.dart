@@ -47,14 +47,14 @@ class StroopTest {
   }) : _rng = random ?? Random();
 
   /// Stroop Data
-  late final List<StroopWordItem> _page0Words; // Congruent words in black ink
-  late final List<StroopColorItem> _page1Colors; // Color patches only
-  late final List<StroopWordItem> _page2Words; // Incongruent word-color pairs
+  late final List<StroopItem> _page0Words; // Congruent words in black ink
+  late final List<StroopItem> _page1Colors; // Color patches only
+  late final List<StroopItem> _page2Words; // Incongruent word-color pairs
 
   /// Public getters
-  List<StroopWordItem> get page0Words => _page0Words;
-  List<StroopColorItem> get page1Colors => _page1Colors;
-  List<StroopWordItem> get page2Words => _page2Words;
+  List<StroopItem> get page0Words => _page0Words;
+  List<StroopItem> get page1Colors => _page1Colors;
+  List<StroopItem> get page2Words => _page2Words;
 
   /// Audio recorder for capturing user responses
   final AudioRecorder _recorder = AudioRecorder();
@@ -190,85 +190,105 @@ class StroopTest {
     }
   }
 
-  /// Generates a sequence with no identical consecutive items
-  List<int> _generateSequenceNoAdjacent(int categories, int length) {
-    if (categories <= 0 || length <= 0) return const <int>[];
-    if (categories == 1) return List.filled(length, 0);
-
-    final sequence = <int>[];
-    int lastChoice = -1;
-
-    for (int i = 0; i < length; i++) {
-      List<int> availableChoices = List.generate(categories, (index) => index);
-      if (lastChoice != -1) {
-        availableChoices.remove(lastChoice);
-      }
-
-      final choice = availableChoices[_rng.nextInt(availableChoices.length)];
-      sequence.add(choice);
-      lastChoice = choice;
-    }
-
-    return sequence;
-  }
-
-  /// Item generation
+  /// Generates sequences for all three pages with proper constraints
   void _generateItems() {
     const colors = [Colors.red, Colors.green, Colors.blue];
     final words = _getWordsForLanguage();
 
-    final wordIndices = _generateSequenceNoAdjacent(words.length, itemCount);
-    final colorIndices = _generateSequenceNoAdjacent(colors.length, itemCount);
+    final items = _generateStroopSequence(words.length, itemCount);
 
-    _page0Words = _generatePage0Words(words, wordIndices);
-    _page1Colors = _generatePage1Colors(colors, colorIndices);
-    _page2Words = _generatePage2Words(words, colors, wordIndices, colorIndices);
+    // Page 0: Words in black ink
+    _page0Words = items
+        .map((item) => StroopItem.word(words[item.$1], Colors.black))
+        .toList();
+
+    // Page 1: Color patches only
+    _page1Colors =
+        items.map((item) => StroopItem.colorOnly(colors[item.$2])).toList();
+
+    // Page 2: Incongruent word-color pairs
+    _page2Words = items
+        .map((item) => StroopItem.word(words[item.$1], colors[item.$2]))
+        .toList();
+  }
+
+  /// Generates a sequence of word-color pairs that satisfy all constraints:
+  /// - No consecutive identical words
+  /// - No consecutive identical colors
+  /// - Word and color are never congruent (same index)
+  List<(int wordIdx, int colorIdx)> _generateStroopSequence(
+      int wordCount, int length) {
+    if (length <= 0) return const <(int, int)>[];
+
+    const colorCount = 3; // red, green, blue
+    final sequence = <(int, int)>[];
+    int? lastWordIdx;
+    int? lastColorIdx;
+
+    for (int i = 0; i < length; i++) {
+      // Generate available word choices (excluding last word)
+      final availableWords = <int>[];
+      for (int w = 0; w < wordCount; w++) {
+        if (lastWordIdx == null || w != lastWordIdx) {
+          availableWords.add(w);
+        }
+      }
+
+      // Choose random word
+      final wordIdx = availableWords[_rng.nextInt(availableWords.length)];
+
+      // Generate available color choices (excluding last color and congruent color)
+      final availableColors = <int>[];
+      for (int c = 0; c < colorCount; c++) {
+        if ((lastColorIdx == null || c != lastColorIdx) && c != wordIdx) {
+          availableColors.add(c);
+        }
+      }
+
+      // If no valid colors (edge case), allow same as last but not congruent
+      int colorIdx;
+      if (availableColors.isEmpty) {
+        final fallbackColors = <int>[];
+        for (int c = 0; c < colorCount; c++) {
+          if (c != wordIdx) {
+            fallbackColors.add(c);
+          }
+        }
+        colorIdx = fallbackColors[_rng.nextInt(fallbackColors.length)];
+      } else {
+        colorIdx = availableColors[_rng.nextInt(availableColors.length)];
+      }
+
+      sequence.add((wordIdx, colorIdx));
+      lastWordIdx = wordIdx;
+      lastColorIdx = colorIdx;
+    }
+
+    return sequence;
   }
 
   /// Get words based on selected language
   List<String> _getWordsForLanguage() {
     return StroopLanguageWords.getWordsForLanguage(language);
   }
-
-  /// Generate page 0: words in black ink
-  List<StroopWordItem> _generatePage0Words(
-      List<String> words, List<int> wordIndices) {
-    return List.generate(
-        itemCount, (i) => StroopWordItem(words[wordIndices[i]], Colors.black));
-  }
-
-  /// Generate page 1: color patches only
-  List<StroopColorItem> _generatePage1Colors(
-      List<Color> colors, List<int> colorIndices) {
-    return List.generate(
-        itemCount, (i) => StroopColorItem(colors[colorIndices[i]]));
-  }
-
-  /// Generate page 2: incongruent word-color pairs
-  List<StroopWordItem> _generatePage2Words(List<String> words,
-      List<Color> colors, List<int> wordIndices, List<int> colorIndices) {
-    return List.generate(itemCount, (i) {
-      final wordIdx = wordIndices[i];
-      final word = words[wordIdx];
-
-      // Find a color that's different from the word's semantic color
-      int colorIdx = colorIndices[i];
-      if (colorIdx == wordIdx) {
-        colorIdx = (colorIdx + 1) % colors.length;
-      }
-
-      return StroopWordItem(word, colors[colorIdx]);
-    });
-  }
 }
 
-class StroopWordItem {
-  final String text;
+/// Unified class for all Stroop test items
+class StroopItem {
+  final String? text; // null for color-only items
   final Color color;
-  StroopWordItem(this.text, this.color);
-}
 
-class StroopColorItem {
-  final Color color;
-  StroopColorItem(this.color);
+  /// Private constructor
+  StroopItem._(this.text, this.color);
+
+  /// Factory for word items (with text and color)
+  factory StroopItem.word(String text, Color color) =>
+      StroopItem._(text, color);
+
+  /// Factory for color-only items (no text)
+  factory StroopItem.colorOnly(Color color) => StroopItem._(null, color);
+
+  /// Whether this item has text (word) or is color-only
+  bool get isWordItem => text != null;
+  bool get isColorOnly => text == null;
 }
