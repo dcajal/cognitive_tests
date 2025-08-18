@@ -30,6 +30,7 @@ class MockTestResultHandler implements TestResultHandler {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('TrailMakingTest Logic Tests', () {
     late TrailMakingTest trailMakingTest;
     late MockTestResultHandler mockHandler;

@@ -56,8 +56,8 @@ class StroopTest {
   List<StroopItem> get page1Colors => _page1Colors;
   List<StroopItem> get page2Words => _page2Words;
 
-  /// Audio recorder for capturing user responses
-  final AudioRecorder _recorder = AudioRecorder();
+  /// Audio recorder for capturing user responses (only created if recording enabled)
+  AudioRecorder? _recorder;
 
   /// List to store timestamps for each page transition
   List<int> timestamps = <int>[];
@@ -106,7 +106,7 @@ class StroopTest {
 
   /// Helper method to start audio recording
   Future<void> _startAudioRecording(String pathWav) async {
-    await _recorder.start(
+    await _recorder?.start(
       const RecordConfig(
         encoder: AudioEncoder.wav,
         sampleRate: 16000,
@@ -124,8 +124,11 @@ class StroopTest {
       return true;
     }
 
+    // Initialize the recorder only if audio recording is enabled
+    _recorder = AudioRecorder();
+
     // Check and request permissions if needed
-    if (await _recorder.hasPermission()) {
+    if (await _recorder!.hasPermission()) {
       debugPrint('Audio recording permission granted');
       return true;
     } else {
@@ -136,7 +139,7 @@ class StroopTest {
 
   /// Clean up resources
   Future<void> dispose() async {
-    await _recorder.dispose();
+    await _recorder?.dispose();
     _pageNotifier.dispose();
   }
 
@@ -169,7 +172,7 @@ class StroopTest {
   /// Stops recording, saves data, and handles file upload
   Future<void> finishTest(BuildContext context) async {
     if (enableAudioRecording) {
-      await _recorder.stop();
+      await _recorder?.stop();
     }
 
     _addTimestamp();

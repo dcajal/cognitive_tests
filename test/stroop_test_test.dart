@@ -4,6 +4,8 @@ import 'package:cognitive_tests/cognitive_tests.dart';
 import 'dart:math';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('StroopTest Logic Tests', () {
     test('should generate items without errors', () {
       final test = StroopTest(
@@ -76,7 +78,7 @@ void main() {
       final words = ['RED', 'GREEN', 'BLUE'];
 
       for (final item in test.page2Words) {
-        final wordIndex = words.indexOf(item.text);
+        final wordIndex = words.indexOf(item.text!);
         final colorIndex = colorToIndex[item.color];
 
         expect(
