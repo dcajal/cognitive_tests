@@ -7,7 +7,7 @@ library;
 /// Supported languages for the Stroop Test
 enum StroopLanguage {
   english,
-  mandarin,
+  chinese,
   hindi,
   spanish,
   french,
@@ -18,6 +18,9 @@ enum StroopLanguage {
   urdu,
   japanese,
   korean,
+  german,
+  turkish,
+  italian,
 }
 
 /// Color words for each supported language
@@ -25,7 +28,7 @@ enum StroopLanguage {
 class StroopLanguageWords {
   static const Map<StroopLanguage, List<String>> words = {
     StroopLanguage.english: ['RED', 'GREEN', 'BLUE'],
-    StroopLanguage.mandarin: ['红色', '绿色', '蓝色'],
+    StroopLanguage.chinese: ['红色', '绿色', '蓝色'],
     StroopLanguage.hindi: ['लाल', 'हरा', 'नीला'],
     StroopLanguage.spanish: ['ROJO', 'VERDE', 'AZUL'],
     StroopLanguage.french: ['ROUGE', 'VERT', 'BLEU'],
@@ -36,6 +39,9 @@ class StroopLanguageWords {
     StroopLanguage.urdu: ['سرخ', 'سبز', 'نیلا'],
     StroopLanguage.japanese: ['赤', '緑', '青'],
     StroopLanguage.korean: ['빨강', '초록', '파랑'],
+    StroopLanguage.german: ['ROT', 'GRÜN', 'BLAU'],
+    StroopLanguage.turkish: ['KIRMIZI', 'YEŞİL', 'MAVİ'],
+    StroopLanguage.italian: ['ROSSO', 'VERDE', 'BLU'],
   };
 
   /// Get color words for a specific language
